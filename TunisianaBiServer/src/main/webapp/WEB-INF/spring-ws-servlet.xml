@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+						http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+						http://www.springframework.org/schema/context
+						http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+	<!-- Import the context resources -->
+	<import resource="datasource.xml" />
+	<import resource="hibernateSessionFactory.xml" />
+
+
+	<!-- Auto scan the project beans (Repositories, services, endpoints) -->
+	<context:component-scan base-package="com.tunisiana.bi" />
+
+
+	<!-- Spring WS Endpoint Mapping Implementation -->
+	<bean
+		class="org.springframework.ws.server.endpoint.mapping.PayloadRootAnnotationMethodEndpointMapping" />
+
+
+	<!-- JaxB Marshaller Configuration -->
+	<bean
+		class="org.springframework.ws.server.endpoint.adapter.GenericMarshallingMethodEndpointAdapter">
+		<constructor-arg ref="marshaller" />
+	</bean>
+
+	<bean id="marshaller" class="org.springframework.oxm.jaxb.Jaxb2Marshaller">
+		<property name="classesToBeBound">
+			<list>
+				<value>com.tunisiana.bi.jaxb.HolidayRequest</value>
+				<value>com.tunisiana.bi.jaxb.HolidayResponse</value>
+			</list>
+		</property>
+	</bean>
+
+
+	<!-- WSDL configuration bean -->
+	<bean id="holiday"
+		class="org.springframework.ws.wsdl.wsdl11.DefaultWsdl11Definition">
+		<property name="schema" ref="schema" />
+		<property name="portTypeName" value="TunisianaBiServer" />
+		<property name="locationUri" value="http://172.24.0.73:8080/TunisianaBiServer/" />
+		<property name="targetNamespace" value="http://tunisiana.com/bi/definitions" />
+	</bean>
+
+	<bean id="schema" class="org.springframework.xml.xsd.SimpleXsdSchema">
+		<property name="xsd" value="/WEB-INF/schemas/hr.xsd" />
+	</bean>
+
+</beans>
